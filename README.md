@@ -7,7 +7,7 @@ Gin Middelware for go-lark.
 ## Installation
 
 ```shell
-go get -u github.com/bytedance/go-lark/middleware/gin
+go get -u github.com/go-lark/lark-gin
 ```
 
 ## Usage
@@ -19,8 +19,8 @@ import (
     "fmt"
 
     "github.com/gin-gonic/gin"
-    "github.com/bytedance/go-lark"
-    larkgin "github.com/bytedance/go-lark/middleware/gin"
+    "github.com/go-lark/lark"
+    larkgin "github.com/go-lark/lark-gin"
 )
 
 func main() {
