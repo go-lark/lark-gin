@@ -2,7 +2,7 @@
 
 [![build](https://github.com/go-lark/lark-gin/actions/workflows/ci.yml/badge.svg)](https://github.com/go-lark/lark-gin/actions/workflows/ci.yml)
 
-Gin Middelware for go-lark.
+Gin Middleware for go-lark.
 
 ## Installation
 
