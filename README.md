@@ -36,13 +36,35 @@ func main() {
 
     r.POST("/", func(c *gin.Context) {
         if msg, ok := middleware.GetMessage(c); ok { // => returns `*lark.EventMessage`
-            fmt.Println(m.Event.Text)
+            fmt.Println(msg.Event.Text)
         }
     })
 }
 ```
 
 Example: [examples/gin-middleware](https://github.com/go-lark/examples/tree/main/gin-middleware)
+
+### Event v2
+
+The default mode is event v1. However, Lark has provided event v2 and it applied automatically to new created bots.
+
+Enable EventV2:
+```go
+middleware.WithEventV2(true)
+```
+
+Get the event (e.g. Message):
+```go
+r.POST("/", func(c *gin.Context) {
+    if evt, ok := middleware.GetEvent(c); ok { // => GetEvent instead of GetMessage
+        if evt.Header.EventType == lark.EventTypeMessageReceived {
+            if msg, ok := evt.GetMessageReceived; ok {
+                fmt.Println(msg.Message.Content)
+            }
+        }
+    }
+})
+```
 
 ### URL Binding
 

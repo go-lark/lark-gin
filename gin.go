@@ -14,7 +14,8 @@ const DefaultLarkMessageKey = "go-lark-message"
 
 // LarkMiddleware .
 type LarkMiddleware struct {
-	messageKey string
+	enableEventV2 bool
+	messageKey    string
 
 	enableTokenVerification bool
 	verificationToken       string
@@ -57,6 +58,13 @@ func (opt *LarkMiddleware) BindURLPrefix(prefix string) *LarkMiddleware {
 	return opt
 }
 
+// WithEventV2 uses EventV2 instead of EventMessage
+func (opt *LarkMiddleware) WithEventV2(isV2 bool) *LarkMiddleware {
+	opt.enableEventV2 = isV2
+
+	return opt
+}
+
 // SetMessageKey .
 func (opt *LarkMiddleware) SetMessageKey(key string) *LarkMiddleware {
 	opt.messageKey = key
@@ -69,6 +77,19 @@ func (opt LarkMiddleware) GetMessage(c *gin.Context) (msg *lark.EventMessage, ok
 	if message, ok := c.Get(opt.messageKey); ok {
 		msg, ok := message.(lark.EventMessage)
 		return &msg, ok
+	}
+
+	return nil, false
+}
+
+// GetEvent should call GetEvent if you're using EventV2
+func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.EventV2, bool) {
+	if message, ok := c.Get(opt.messageKey); ok {
+		event, ok := message.(lark.EventV2)
+		if ev.Schema != "2.0" {
+			return nil, false
+		}
+		return &event, ok
 	}
 
 	return nil, false
