@@ -86,7 +86,7 @@ func (opt LarkMiddleware) GetMessage(c *gin.Context) (msg *lark.EventMessage, ok
 func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.EventV2, bool) {
 	if message, ok := c.Get(opt.messageKey); ok {
 		event, ok := message.(lark.EventV2)
-		if ev.Schema != "2.0" {
+		if event.Schema != "2.0" {
 			return nil, false
 		}
 		return &event, ok
