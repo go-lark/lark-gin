@@ -118,18 +118,32 @@ func (opt LarkMiddleware) LarkMessageHandler() gin.HandlerFunc {
 			inputBody = decryptedData
 		}
 
-		var message lark.EventMessage
-		err = json.Unmarshal(inputBody, &message)
-		if err != nil {
-			return
-		}
+		if opt.enableEventV2 {
+			var event lark.EventV2
+			err = json.Unmarshal(inputBody, &event)
+			if err != nil {
+				return
+			}
+			if opt.enableTokenVerification && event.Header.Token != opt.verificationToken {
+				log.Println("Token verification failed")
+				return
+			}
+			log.Println("Handling event:", event.Header.EventType)
+			c.Set(opt.messageKey, event)
+		} else {
+			var message lark.EventMessage
+			err = json.Unmarshal(inputBody, &message)
+			if err != nil {
+				return
+			}
 
-		if opt.enableTokenVerification && message.Token != opt.verificationToken {
-			log.Println("Token verification failed")
-			return
+			if opt.enableTokenVerification && message.Token != opt.verificationToken {
+				log.Println("Token verification failed")
+				return
+			}
+			log.Println("Handling message:", message.EventType)
+			c.Set(opt.messageKey, message)
 		}
-		log.Println("Handling message:", message.EventType)
-		c.Set(opt.messageKey, message)
 	}
 }
 
