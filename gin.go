@@ -78,6 +78,11 @@ func (opt LarkMiddleware) GetMessage(c *gin.Context) (msg *lark.EventMessage, ok
 func (opt LarkMiddleware) LarkMessageHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer c.Next()
+		if opt.enableURLBinding && c.Request.URL.String() != opt.urlPrefix {
+			// url not match just pass
+			return
+		}
+
 		body, err := fetchBody(c)
 		if err != nil {
 			return
@@ -115,6 +120,7 @@ func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
 			// url not match just pass
 			return
 		}
+
 		body, err := fetchBody(c)
 		if err != nil {
 			return

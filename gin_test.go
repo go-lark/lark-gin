@@ -55,6 +55,38 @@ func TestMessageStandard(t *testing.T) {
 	assert.Equal(t, "tlb", m.Event.Text)
 }
 
+func TestMessageMismatch(t *testing.T) {
+	r := gin.Default()
+	middleware := NewLarkMiddleware().BindURLPrefix("/abc")
+	r.Use(middleware.LarkMessageHandler())
+	r.POST("/", func(c *gin.Context) {
+		// do nothing
+	})
+
+	message := lark.EventMessage{
+		Timestamp: "",
+		Token:     "",
+		EventType: "event_callback",
+		Event: lark.EventBody{
+			Type:          "message",
+			ChatType:      "private",
+			MsgType:       "text",
+			OpenID:        "ou_08198ccd6a37644b49f4789c92369c80",
+			Text:          "tlb",
+			Title:         "",
+			OpenMessageID: "",
+			ImageKey:      "",
+			ImageURL:      "",
+		},
+	}
+	resp := performRequest(r, "POST", "/", message)
+	var respData lark.EventMessage
+	if assert.NotNil(t, resp.Body) {
+		err := json.NewDecoder(resp.Body).Decode(&respData)
+		assert.Error(t, err)
+	}
+}
+
 func TestMessaggeEncryted(t *testing.T) {
 	var (
 		r          = gin.Default()
