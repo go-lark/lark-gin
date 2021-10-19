@@ -5,6 +5,9 @@
 
 Gin Middleware for go-lark.
 
+NOTICE: Only URL challenge and incoming message event (schema 1.0) are supported.
+Other events will be supported with future v2 version with event schema 2.0.
+
 ## Installation
 
 ```shell
@@ -39,6 +42,14 @@ func main() {
 }
 ```
 
+Example: [examples/gin-middleware](https://github.com/go-lark/examples/tree/main/gin-middleware)
+
+### URL Binding
+
+Only bind specific URL for events:
+```go
+middleware.BindURLPrefix("/abc")
+```
 
 ### Token Verification
 
@@ -50,13 +61,6 @@ middleware.WithTokenVerfication("asodjiaoijoi121iuhiaud")
 
 ```go
 middleware.WithEncryption("1231asda")
-```
-
-### URL Binding
-
-Only bind specific URL for events:
-```go
-middleware.BindURLPrefix("/abc")
 ```
 
 ## About
