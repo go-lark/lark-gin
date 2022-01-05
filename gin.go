@@ -14,8 +14,7 @@ const DefaultLarkMessageKey = "go-lark-message"
 
 // LarkMiddleware .
 type LarkMiddleware struct {
-	enableEventV2 bool
-	messageKey    string
+	messageKey string
 
 	enableTokenVerification bool
 	verificationToken       string
@@ -58,13 +57,6 @@ func (opt *LarkMiddleware) BindURLPrefix(prefix string) *LarkMiddleware {
 	return opt
 }
 
-// WithEventV2 uses EventV2 instead of EventMessage
-func (opt *LarkMiddleware) WithEventV2(isV2 bool) *LarkMiddleware {
-	opt.enableEventV2 = isV2
-
-	return opt
-}
-
 // SetMessageKey .
 func (opt *LarkMiddleware) SetMessageKey(key string) *LarkMiddleware {
 	opt.messageKey = key
@@ -95,6 +87,39 @@ func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.EventV2, bool) {
 	return nil, false
 }
 
+// LarkEventHandler handle lark event v2
+func (opt LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer c.Next()
+		body, err := fetchBody(c)
+		if err != nil {
+			return
+		}
+		var inputBody []byte = body
+		if opt.enableEncryption {
+			decryptedData, err := opt.decodeEncryptedJSON(body)
+			if err != nil {
+				log.Println("Decrypt failed:", err)
+				return
+			}
+			inputBody = decryptedData
+		}
+
+		var event lark.EventV2
+		err = json.Unmarshal(inputBody, &event)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if opt.enableTokenVerification && event.Header.Token != opt.verificationToken {
+			log.Println("Token verification failed")
+			return
+		}
+		log.Println("Handling event:", event.Header.EventType)
+		c.Set(opt.messageKey, event)
+	}
+}
+
 // LarkMessageHandler Lark message handler
 func (opt LarkMiddleware) LarkMessageHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -118,32 +143,18 @@ func (opt LarkMiddleware) LarkMessageHandler() gin.HandlerFunc {
 			inputBody = decryptedData
 		}
 
-		if opt.enableEventV2 {
-			var event lark.EventV2
-			err = json.Unmarshal(inputBody, &event)
-			if err != nil {
-				return
-			}
-			if opt.enableTokenVerification && event.Header.Token != opt.verificationToken {
-				log.Println("Token verification failed")
-				return
-			}
-			log.Println("Handling event:", event.Header.EventType)
-			c.Set(opt.messageKey, event)
-		} else {
-			var message lark.EventMessage
-			err = json.Unmarshal(inputBody, &message)
-			if err != nil {
-				return
-			}
-
-			if opt.enableTokenVerification && message.Token != opt.verificationToken {
-				log.Println("Token verification failed")
-				return
-			}
-			log.Println("Handling message:", message.EventType)
-			c.Set(opt.messageKey, message)
+		var message lark.EventMessage
+		err = json.Unmarshal(inputBody, &message)
+		if err != nil {
+			return
 		}
+
+		if opt.enableTokenVerification && message.Token != opt.verificationToken {
+			log.Println("Token verification failed")
+			return
+		}
+		log.Println("Handling message:", message.EventType)
+		c.Set(opt.messageKey, message)
 	}
 }
 

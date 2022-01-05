@@ -31,8 +31,11 @@ func main() {
     r := gin.Default()
 
     middleware := larkgin.NewLarkMiddleware()
-    r.Use(middleware.LarkMessageHandler())
     r.Use(middleware.LarkChallengeHandler())
+    // Event Schema 1.0, for older bots
+    r.Use(middleware.LarkMessageHandler())
+    // Event Scheme 2.0, for newer bots
+    r.Use(middleware.LarkEventHandler())
 
     r.POST("/", func(c *gin.Context) {
         if msg, ok := middleware.GetMessage(c); ok { // => returns `*lark.EventMessage`
@@ -46,11 +49,11 @@ Example: [examples/gin-middleware](https://github.com/go-lark/examples/tree/main
 
 ### Event v2
 
-The default mode is event v1. However, Lark has provided event v2 and it applied automatically to new created bots.
+The default mode is event v1. However, Lark has provided event v2 and it applied automatically to newly created bots.
 
-Enable EventV2:
+To enable EventV2, we use `LarkEventHandler` instead of `LarkMessageHandler`:
 ```go
-middleware.WithEventV2(true)
+r.Use(middleware.LarkEventHandler())
 ```
 
 Get the event (e.g. Message):
@@ -58,9 +61,10 @@ Get the event (e.g. Message):
 r.POST("/", func(c *gin.Context) {
     if evt, ok := middleware.GetEvent(c); ok { // => GetEvent instead of GetMessage
         if evt.Header.EventType == lark.EventTypeMessageReceived {
-            if msg, ok := evt.GetMessageReceived; ok {
+            if msg, err := evt.GetMessageReceived(); err == nil {
                 fmt.Println(msg.Message.Content)
             }
+            // you may have to parse other events
         }
     }
 })
@@ -87,4 +91,4 @@ middleware.WithEncryption("1231asda")
 
 ## About
 
-Copyright (c) go-lark Developers, 2018-2021.
+Copyright (c) go-lark Developers, 2018-2022.
