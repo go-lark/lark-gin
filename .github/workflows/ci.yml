@@ -16,10 +16,7 @@ jobs:
         GO111MODULE: "on"
 
     - name: lint
-      run: |
-        export PATH=$PATH:$(go env GOPATH)/bin
-        go get -u golang.org/x/lint/golint
-        golint -set_exit_status ./...
+      uses: morphy2k/revive-action@v2
 
     - name: build
       run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
