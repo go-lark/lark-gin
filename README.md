@@ -3,10 +3,14 @@
 [![build](https://github.com/go-lark/lark-gin/actions/workflows/ci.yml/badge.svg)](https://github.com/go-lark/lark-gin/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/go-lark/lark-gin/branch/main/graph/badge.svg?token=MQL8MFPF2Q)](https://codecov.io/gh/go-lark/lark-gin)
 
-Gin Middleware for go-lark.
+Gin Middlewares for go-lark.
 
-NOTICE: Only URL challenge and incoming message event (schema 1.0) are supported.
-Other events will be supported with future v2 version with event schema 2.0.
+## Supported events
+
+- URL challenge for general events and card callback
+- Event v2 (Schema 2.0)
+- Card Callback
+- (Legacy) Incoming message event (Schema 1.0)
 
 ## Installation
 
@@ -29,19 +33,30 @@ import (
 
 func main() {
     r := gin.Default()
-
     middleware := larkgin.NewLarkMiddleware()
-    r.Use(middleware.LarkChallengeHandler())
-    // Event Schema 1.0, for older bots
-    r.Use(middleware.LarkMessageHandler())
-    // Event Scheme 2.0, for newer bots
-    r.Use(middleware.LarkEventHandler())
 
-    r.POST("/", func(c *gin.Context) {
-        if msg, ok := middleware.GetMessage(c); ok { // => returns `*lark.EventMessage`
-            fmt.Println(msg.Event.Text)
-        }
-    })
+    // lark server challenge
+    r.Use(middleware.LarkChallengeHandler())
+
+    // all supported events
+    eventGroup := r.Group("/event")
+    {
+        eventGroup.Use(middleware.LarkEventHandler())
+        eventGroup.POST("/", func(c *gin.Context) {
+            if event, ok := middleware.GetEvent(e); ok { // => returns `*lark.EventV2`
+            }
+        })
+    }
+
+    // card callback only
+    cardGroup := r.Group("/card")
+    {
+        cardGroup.Use(middleware.LarkCardHandler())
+        cardGroup.POST("/callback", func(c *gin.Context) {
+            if card, ok := middleware.GetCardCallback(c); ok { // => returns `*lark.EventCardCallback`
+            }
+        })
+    }
 }
 ```
 
@@ -70,6 +85,19 @@ r.POST("/", func(c *gin.Context) {
 })
 ```
 
+### Card Callback
+
+We may also setup callback for card actions (e.g. button). The URL challenge part is the same.
+
+We may use `LarkCardHandler` to handle the actions:
+```go
+r.Use(middleware.LarkCardHandler())
+r.POST("/callback", func(c *gin.Context) {
+    if card, ok := middleware.GetCardCallback(c); ok {
+    }
+})
+```
+
 ### URL Binding
 
 Only bind specific URL for events:
@@ -85,10 +113,12 @@ middleware.WithTokenVerfication("asodjiaoijoi121iuhiaud")
 
 ### Encryption
 
+> Notice: encryption is not available for card callback, due to restriction from Lark Open Platform.
+
 ```go
 middleware.WithEncryption("1231asda")
 ```
 
 ## About
 
-Copyright (c) go-lark Developers, 2018-2022.
+Copyright (c) go-lark Developers, 2018-2024.
