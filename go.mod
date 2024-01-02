@@ -4,6 +4,6 @@ go 1.13
 
 require (
 	github.com/gin-gonic/gin v1.7.1
-	github.com/go-lark/lark v1.7.0-beta.4
+	github.com/go-lark/lark v1.13.1
 	github.com/stretchr/testify v1.7.0
 )
