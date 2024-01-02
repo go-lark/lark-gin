@@ -1,20 +1,23 @@
+// Package larkgin is gin middleware for go-lark/lark
 package larkgin
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
 	"github.com/go-lark/lark"
 )
 
-// DefaultLarkMessageKey still public for compatibility
+// DefaultLarkMessageKey compat legacy versions
+// not use in this repo right now
 const DefaultLarkMessageKey = "go-lark-message"
+
+const (
+	defaultLarkMessageKey = "go-lark-message"
+	defaultLarkCardKey    = "go-lark-card"
+)
 
 // LarkMiddleware .
 type LarkMiddleware struct {
 	messageKey string
+	cardKey    string
 
 	enableTokenVerification bool
 	verificationToken       string
@@ -29,7 +32,8 @@ type LarkMiddleware struct {
 // NewLarkMiddleware .
 func NewLarkMiddleware() *LarkMiddleware {
 	return &LarkMiddleware{
-		messageKey: DefaultLarkMessageKey,
+		messageKey: defaultLarkMessageKey,
+		cardKey:    defaultLarkCardKey,
 	}
 }
 
@@ -64,133 +68,9 @@ func (opt *LarkMiddleware) SetMessageKey(key string) *LarkMiddleware {
 	return opt
 }
 
-// GetMessage from gin context
-func (opt LarkMiddleware) GetMessage(c *gin.Context) (msg *lark.EventMessage, ok bool) {
-	if message, ok := c.Get(opt.messageKey); ok {
-		msg, ok := message.(lark.EventMessage)
-		return &msg, ok
-	}
+// SetCardKey .
+func (opt *LarkMiddleware) SetCardKey(key string) *LarkMiddleware {
+	opt.cardKey = key
 
-	return nil, false
-}
-
-// GetEvent should call GetEvent if you're using EventV2
-func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.EventV2, bool) {
-	if message, ok := c.Get(opt.messageKey); ok {
-		event, ok := message.(lark.EventV2)
-		if event.Schema != "2.0" {
-			return nil, false
-		}
-		return &event, ok
-	}
-
-	return nil, false
-}
-
-// LarkEventHandler handle lark event v2
-func (opt LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer c.Next()
-		body, err := fetchBody(c)
-		if err != nil {
-			return
-		}
-		var inputBody []byte = body
-		if opt.enableEncryption {
-			decryptedData, err := opt.decodeEncryptedJSON(body)
-			if err != nil {
-				log.Println("Decrypt failed:", err)
-				return
-			}
-			inputBody = decryptedData
-		}
-
-		var event lark.EventV2
-		err = json.Unmarshal(inputBody, &event)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if opt.enableTokenVerification && event.Header.Token != opt.verificationToken {
-			log.Println("Token verification failed")
-			return
-		}
-		log.Println("Handling event:", event.Header.EventType)
-		c.Set(opt.messageKey, event)
-	}
-}
-
-// LarkMessageHandler Lark message handler
-func (opt LarkMiddleware) LarkMessageHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer c.Next()
-		if opt.enableURLBinding && c.Request.URL.String() != opt.urlPrefix {
-			// url not match just pass
-			return
-		}
-
-		body, err := fetchBody(c)
-		if err != nil {
-			return
-		}
-		var inputBody []byte = body
-		if opt.enableEncryption {
-			decryptedData, err := opt.decodeEncryptedJSON(body)
-			if err != nil {
-				log.Println("Decrypt failed:", err)
-				return
-			}
-			inputBody = decryptedData
-		}
-
-		var message lark.EventMessage
-		err = json.Unmarshal(inputBody, &message)
-		if err != nil {
-			return
-		}
-
-		if opt.enableTokenVerification && message.Token != opt.verificationToken {
-			log.Println("Token verification failed")
-			return
-		}
-		log.Println("Handling message:", message.EventType)
-		c.Set(opt.messageKey, message)
-	}
-}
-
-// LarkChallengeHandler Lark challenge handler
-func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer c.Next()
-		if opt.enableURLBinding && c.Request.URL.String() != opt.urlPrefix {
-			// url not match just pass
-			return
-		}
-
-		body, err := fetchBody(c)
-		if err != nil {
-			return
-		}
-		var inputBody []byte = body
-		if opt.enableEncryption {
-			decryptedData, err := opt.decodeEncryptedJSON(body)
-			if err != nil {
-				log.Println("Decrypt failed:", err)
-				return
-			}
-			inputBody = decryptedData
-		}
-
-		var challenge lark.EventChallengeReq
-		err = json.Unmarshal(inputBody, &challenge)
-		if err != nil {
-			return
-		}
-		if challenge.Type == "url_verification" {
-			log.Println("Handling challenge:", challenge.Challenge)
-			c.AbortWithStatusJSON(http.StatusOK, gin.H{
-				"challenge": challenge.Challenge,
-			})
-		}
-	}
+	return opt
 }
