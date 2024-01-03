@@ -43,7 +43,6 @@ func (opt LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
 			timestamp := c.Request.Header.Get("X-Lark-Request-Timestamp")
 			signature := c.Request.Header.Get("X-Lark-Signature")
 			token := opt.cardSignature(nonce, timestamp, string(body), opt.verificationToken)
-			log.Println(token, signature)
 			if signature != token {
 				log.Println("Token verification failed")
 				return
