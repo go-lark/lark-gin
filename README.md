@@ -119,6 +119,13 @@ middleware.WithTokenVerfication("asodjiaoijoi121iuhiaud")
 middleware.WithEncryption("1231asda")
 ```
 
+### Logger
+
+`lark-gin` implements and uses `lark.LogWrapper`. You may set your own logger:
+```go
+middleware.SetLogger(yourOwnLogger)
+```
+
 ## About
 
 Copyright (c) go-lark Developers, 2018-2024.

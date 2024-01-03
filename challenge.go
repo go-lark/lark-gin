@@ -2,7 +2,7 @@ package larkgin
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +26,7 @@ func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
 		if opt.enableEncryption {
 			decryptedData, err := opt.decodeEncryptedJSON(body)
 			if err != nil {
-				log.Println("Decrypt failed:", err)
+				opt.logger.Log(c, lark.LogLevelError, fmt.Sprintf("Decrypt failed: %v", err))
 				return
 			}
 			inputBody = decryptedData
@@ -38,7 +38,7 @@ func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
 			return
 		}
 		if challenge.Type == "url_verification" {
-			log.Println("Handling challenge:", challenge.Challenge)
+			opt.logger.Log(c, lark.LogLevelInfo, fmt.Sprintf("Handling challenge: %s", challenge.Challenge))
 			c.AbortWithStatusJSON(http.StatusOK, gin.H{
 				"challenge": challenge.Challenge,
 			})

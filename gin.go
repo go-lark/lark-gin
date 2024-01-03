@@ -16,6 +16,8 @@ const (
 
 // LarkMiddleware .
 type LarkMiddleware struct {
+	logger lark.LogWrapper
+
 	messageKey string
 	cardKey    string
 
@@ -32,6 +34,7 @@ type LarkMiddleware struct {
 // NewLarkMiddleware .
 func NewLarkMiddleware() *LarkMiddleware {
 	return &LarkMiddleware{
+		logger:     initDefaultLogger(),
 		messageKey: defaultLarkMessageKey,
 		cardKey:    defaultLarkCardKey,
 	}

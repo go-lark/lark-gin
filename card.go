@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +34,7 @@ func (opt LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
 		var event lark.EventCardCallback
 		err = json.Unmarshal(inputBody, &event)
 		if err != nil {
-			log.Println(err)
+			opt.logger.Log(c, lark.LogLevelWarn, fmt.Sprintf("Unmarshal JSON error: %v", err))
 			return
 		}
 		if opt.enableTokenVerification {
@@ -44,7 +43,7 @@ func (opt LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
 			signature := c.Request.Header.Get("X-Lark-Signature")
 			token := opt.cardSignature(nonce, timestamp, string(body), opt.verificationToken)
 			if signature != token {
-				log.Println("Token verification failed")
+				opt.logger.Log(c, lark.LogLevelError, "Token verification failed")
 				return
 			}
 		}

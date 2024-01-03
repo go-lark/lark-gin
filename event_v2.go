@@ -2,7 +2,7 @@ package larkgin
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-lark/lark"
@@ -33,7 +33,7 @@ func (opt LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
 		if opt.enableEncryption {
 			decryptedData, err := opt.decodeEncryptedJSON(body)
 			if err != nil {
-				log.Println("Decrypt failed:", err)
+				opt.logger.Log(c, lark.LogLevelError, fmt.Sprintf("Decrypt failed: %v", err))
 				return
 			}
 			inputBody = decryptedData
@@ -42,14 +42,14 @@ func (opt LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
 		var event lark.EventV2
 		err = json.Unmarshal(inputBody, &event)
 		if err != nil {
-			log.Println(err)
+			opt.logger.Log(c, lark.LogLevelWarn, fmt.Sprintf("Unmarshal JSON error: %v", err))
 			return
 		}
 		if opt.enableTokenVerification && event.Header.Token != opt.verificationToken {
-			log.Println("Token verification failed")
+			opt.logger.Log(c, lark.LogLevelError, "Token verification failed")
 			return
 		}
-		log.Println("Handling event:", event.Header.EventType)
+		opt.logger.Log(c, lark.LogLevelInfo, fmt.Sprintf("Handling event: %s", event.Header.EventType))
 		c.Set(opt.messageKey, event)
 	}
 }
