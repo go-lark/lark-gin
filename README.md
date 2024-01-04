@@ -98,13 +98,6 @@ r.POST("/callback", func(c *gin.Context) {
 })
 ```
 
-### URL Binding
-
-Only bind specific URL for events:
-```go
-middleware.BindURLPrefix("/abc")
-```
-
 ### Token Verification
 
 ```go
@@ -117,6 +110,13 @@ middleware.WithTokenVerfication("asodjiaoijoi121iuhiaud")
 
 ```go
 middleware.WithEncryption("1231asda")
+```
+
+### URL Binding
+
+Only bind specific URL for events:
+```go
+middleware.BindURLPrefix("/abc")
 ```
 
 ### Logger
