@@ -1,7 +1,7 @@
 package larkgin
 
 import (
-	"crypto/sha256"
+	"crypto/sha1"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -58,7 +58,7 @@ func (opt LarkMiddleware) cardSignature(nonce string, timestamp string, body str
 	b.WriteString(token)
 	b.WriteString(body)
 	bs := []byte(b.String())
-	h := sha256.New()
+	h := sha1.New()
 	h.Write(bs)
 	bs = h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
