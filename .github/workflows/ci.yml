@@ -1,19 +1,31 @@
 name: build
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 jobs:
   checks:
     name: run
     runs-on: ubuntu-latest
     steps:
     - name: checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v3
 
-    - name: run
-      uses: actions/setup-go@v2
+    - name: cache
+      uses: actions/cache@v3
       with:
-        go-version: "1.13"
-      env:
-        GO111MODULE: "on"
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: setup
+      uses: actions/setup-go@v3
+      with:
+        go-version: "1.18"
 
     - name: lint
       uses: morphy2k/revive-action@v2
