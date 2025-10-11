@@ -10,12 +10,12 @@ Gin Middlewares for go-lark.
 - `LarkChallengeHandler`: URL challenge for general events and card callback
 - `LarkEventHandler`: Incoming events (schema 2.0)
 - `LarkCardHandler`: Card callback
-- ~~`LarkMessageHandler~~` (Legacy): Incoming message event (schema 1.0)
+- ~~`LarkMessageHandler`~~ (Legacy): Incoming message event (schema 1.0)
 
 ## Installation
 
 ```shell
-go get -u github.com/go-lark/lark-gin
+go get -u github.com/go-lark/lark-gin/v2
 ```
 
 ## Usage
@@ -27,8 +27,8 @@ import (
     "fmt"
 
     "github.com/gin-gonic/gin"
-    "github.com/go-lark/lark"
-    larkgin "github.com/go-lark/lark-gin"
+    "github.com/go-lark/lark/v2"
+    larkgin "github.com/go-lark/lark-gin/v2"
 )
 
 func main() {
@@ -64,6 +64,8 @@ func main() {
             }
         })
     }
+
+    r.Run(":8080")
 }
 ```
 
