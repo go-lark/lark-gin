@@ -10,7 +10,7 @@ Gin Middlewares for go-lark.
 - `LarkChallengeHandler`: URL challenge for general events and card callback
 - `LarkEventHandler`: Incoming events (schema 2.0)
 - `LarkCardHandler`: Card callback
-- ~~`LarkMessageHandler~~` (Legacy): Incoming message event (schema 1.0)
+- ~~`LarkMessageHandler`~~ (Legacy): Incoming message event (schema 1.0)
 
 ## Installation
 
