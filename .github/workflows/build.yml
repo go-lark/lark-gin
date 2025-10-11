@@ -1,9 +1,13 @@
-name: build
+name: build_v1
 on:
   push:
     branches:
       - main
+    paths:
+      - 'v2/**'
   pull_request:
+    paths:
+      - 'v2/**'
 jobs:
   checks:
     name: run
@@ -25,13 +29,13 @@ jobs:
     - name: setup
       uses: actions/setup-go@v3
       with:
-        go-version: "1.18"
+        go-version: "1.24.0"
 
     - name: lint
       uses: morphy2k/revive-action@v2
 
     - name: build
-      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      run: cd v2 && go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
     - name: codecov
       uses: codecov/codecov-action@v1
