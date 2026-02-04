@@ -11,7 +11,7 @@ import (
 )
 
 // GetCardCallback from gin context
-func (opt LarkMiddleware) GetCardCallback(c *gin.Context) (*lark.EventCardCallback, bool) {
+func (opt *LarkMiddleware) GetCardCallback(c *gin.Context) (*lark.EventCardCallback, bool) {
 	if card, ok := c.Get(opt.cardKey); ok {
 		msg, ok := card.(lark.EventCardCallback)
 		return &msg, ok
@@ -22,7 +22,7 @@ func (opt LarkMiddleware) GetCardCallback(c *gin.Context) (*lark.EventCardCallba
 
 // LarkCardHandler card callback handler
 // Encryption is automatically ignored, because it's not supported officially
-func (opt LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
+func (opt *LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer c.Next()
 		body, err := fetchBody(c)
@@ -51,7 +51,7 @@ func (opt LarkMiddleware) LarkCardHandler() gin.HandlerFunc {
 	}
 }
 
-func (opt LarkMiddleware) cardSignature(nonce string, timestamp string, body string, token string) string {
+func (opt *LarkMiddleware) cardSignature(nonce string, timestamp string, body string, token string) string {
 	var b strings.Builder
 	b.WriteString(timestamp)
 	b.WriteString(nonce)

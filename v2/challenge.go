@@ -10,7 +10,7 @@ import (
 )
 
 // LarkChallengeHandler Lark challenge handler
-func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
+func (opt *LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer c.Next()
 		if opt.enableURLBinding && c.Request.URL.Path != opt.urlPrefix {

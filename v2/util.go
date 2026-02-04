@@ -9,7 +9,7 @@ import (
 	"github.com/go-lark/lark/v2"
 )
 
-func (opt LarkMiddleware) decodeEncryptedJSON(body []byte) ([]byte, error) {
+func (opt *LarkMiddleware) decodeEncryptedJSON(body []byte) ([]byte, error) {
 	var encryptedBody lark.EncryptedReq
 	err := json.Unmarshal(body, &encryptedBody)
 	if err != nil {
