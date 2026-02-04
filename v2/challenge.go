@@ -13,7 +13,7 @@ import (
 func (opt LarkMiddleware) LarkChallengeHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer c.Next()
-		if opt.enableURLBinding && c.Request.URL.String() != opt.urlPrefix {
+		if opt.enableURLBinding && c.Request.URL.Path != opt.urlPrefix {
 			// url not match just pass
 			return
 		}
