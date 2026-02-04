@@ -9,7 +9,7 @@ import (
 )
 
 // GetEvent should call GetEvent if you're using EventV2
-func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.Event, bool) {
+func (opt *LarkMiddleware) GetEvent(c *gin.Context) (*lark.Event, bool) {
 	if message, ok := c.Get(opt.messageKey); ok {
 		event, ok := message.(lark.Event)
 		if !ok || event.Schema != "2.0" {
@@ -22,7 +22,7 @@ func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.Event, bool) {
 }
 
 // LarkEventHandler handle lark event v2
-func (opt LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
+func (opt *LarkMiddleware) LarkEventHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer c.Next()
 		body, err := fetchBody(c)
