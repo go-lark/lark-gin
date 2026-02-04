@@ -3,7 +3,7 @@ package larkgin
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-lark/lark/v2"
@@ -23,12 +23,11 @@ func (opt LarkMiddleware) decodeEncryptedJSON(body []byte) ([]byte, error) {
 }
 
 func fetchBody(c *gin.Context) ([]byte, error) {
-	body, err := ioutil.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
 	c.Request.Body.Close()
 	if err != nil {
 		return nil, err
 	}
-	buf := bytes.NewBuffer(body)
-	c.Request.Body = ioutil.NopCloser(buf)
+	c.Request.Body = io.NopCloser(bytes.NewReader(body))
 	return body, nil
 }
