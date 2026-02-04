@@ -12,10 +12,10 @@ import (
 func (opt LarkMiddleware) GetEvent(c *gin.Context) (*lark.Event, bool) {
 	if message, ok := c.Get(opt.messageKey); ok {
 		event, ok := message.(lark.Event)
-		if event.Schema != "2.0" {
+		if !ok || event.Schema != "2.0" {
 			return nil, false
 		}
-		return &event, ok
+		return &event, true
 	}
 
 	return nil, false
