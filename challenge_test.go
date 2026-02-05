@@ -15,7 +15,7 @@ func TestChallengePassed(t *testing.T) {
 		middleware = NewLarkMiddleware()
 	)
 	r.Use(middleware.LarkChallengeHandler())
-	r.POST("/", func(c *gin.Context) {
+	r.POST("/", func(_ *gin.Context) {
 		// do nothing
 	})
 
@@ -35,7 +35,7 @@ func TestChallengeMismatch(t *testing.T) {
 	r := gin.Default()
 	middleware := NewLarkMiddleware().BindURLPrefix("/abc")
 	r.Use(middleware.LarkChallengeHandler())
-	r.POST("/", func(c *gin.Context) {
+	r.POST("/", func(_ *gin.Context) {
 		// do nothing
 	})
 
