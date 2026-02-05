@@ -35,7 +35,7 @@ jobs:
       uses: morphy2k/revive-action@v2
 
     - name: build
-      run: cd v2 && go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      run: cd v2 && go mod tidy && go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
     - name: codecov
       uses: codecov/codecov-action@v1
