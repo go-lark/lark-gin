@@ -47,7 +47,7 @@ func TestMessageMismatch(t *testing.T) {
 	r := gin.Default()
 	middleware := NewLarkMiddleware().BindURLPrefix("/abc")
 	r.Use(middleware.LarkMessageHandler())
-	r.POST("/", func(c *gin.Context) {
+	r.POST("/", func(_ *gin.Context) {
 		// do nothing
 	})
 
